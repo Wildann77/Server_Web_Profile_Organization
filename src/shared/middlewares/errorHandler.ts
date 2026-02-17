@@ -10,13 +10,10 @@ export const errorHandler = (
   _next: NextFunction
 ) => {
   // Log error
-  logger.error({
-    error: err.message,
-    stack: err.stack,
-    path: req.path,
-    method: req.method,
-    requestId: req.headers['x-request-id'],
-  });
+  logger.error(
+    `${req.method} ${req.path} - ${err.message}`,
+    { stack: err.stack, requestId: req.headers['x-request-id'] }
+  );
 
   // Handle AppError (operational errors)
   if (err instanceof AppError) {
@@ -27,8 +24,8 @@ export const errorHandler = (
 
   // Handle Prisma errors
   if (err.name === 'PrismaClientKnownRequestError') {
-    const prismaError = err as { code: string; meta?: { target?: string[] } };
-    
+    const prismaError = err as unknown as { code: string; meta?: { target?: string[] } };
+
     if (prismaError.code === 'P2002') {
       return res.status(409).json(
         createErrorResponse(
@@ -38,7 +35,7 @@ export const errorHandler = (
         )
       );
     }
-    
+
     if (prismaError.code === 'P2025') {
       return res.status(404).json(
         createErrorResponse('Data tidak ditemukan', ErrorCode.NOT_FOUND)
@@ -48,15 +45,15 @@ export const errorHandler = (
 
   // Handle Zod validation errors
   if (err.name === 'ZodError') {
-    const zodError = err as { errors: Array<{ path: string[]; message: string }> };
+    const zodError = err as unknown as { errors: Array<{ path: string[]; message: string }> };
     const details: Record<string, string[]> = {};
-    
+
     zodError.errors.forEach((e) => {
       const key = e.path.join('.');
       if (!details[key]) details[key] = [];
       details[key].push(e.message);
     });
-    
+
     return res.status(400).json(
       createErrorResponse('Validasi gagal', ErrorCode.VALIDATION_ERROR, details)
     );
@@ -77,7 +74,7 @@ export const errorHandler = (
 
   // Default: Internal server error
   const isDev = process.env.NODE_ENV === 'development';
-  
+
   return res.status(500).json(
     createErrorResponse(
       isDev ? err.message : 'Terjadi kesalahan internal server',
