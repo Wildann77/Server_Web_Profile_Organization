@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  ADMIN      // Full access
+  EDITOR     // Create, edit, publish articles
+  VIEWER     // Read-only access
+}
+
+enum ArticleStatus {
+  DRAFT      // Sedang ditulis
+  PUBLISHED  // Sudah dipublikasikan
+  ARCHIVED   // Diarsipkan
+}
+
+enum ArticleVisibility {
+  PUBLIC        // Semua orang bisa lihat
+  PRIVATE       // Hanya admin
+  MEMBERS_ONLY  // Hanya member yang login
+}
+
+enum SessionStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // bcrypt hashed
+  name      String
+  role      UserRole @default(EDITOR)
+  avatarUrl String?
+  isActive  Boolean  @default(true)
+  
+  // Relations
+  articles  Article[]
+  sessions  Session[]
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Indexes
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@map("users")
+}
+
+model Session {
+  id        String        @id @default(uuid())
+  token     String        @unique
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    SessionStatus @default(ACTIVE)
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([token])
+  @@index([status, expiresAt])
+  @@map("sessions")
+}
+
+model Article {
+  id              String            @id @default(uuid())
+  title           String            @db.VarChar(200)
+  slug            String            @unique @db.VarChar(200)
+  content         String            @db.Text
+  excerpt         String?           @db.VarChar(500)
+  thumbnailUrl    String?
+  
+  // Publishing
+  status          ArticleStatus     @default(DRAFT)
+  visibility      ArticleVisibility @default(PUBLIC)
+  publishedAt     DateTime?
+  
+  // SEO
+  metaTitle       String?           @db.VarChar(70)
+  metaDescription String?           @db.VarChar(160)
+  
+  // Relations
+  authorId        String
+  author          User              @relation(fields: [authorId], references: [id])
+  
+  // Analytics
+  viewCount       Int               @default(0)
+  
+  // Timestamps
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  // Indexes untuk query optimization
+  @@index([slug])
+  @@index([status, visibility])
+  @@index([status, publishedAt])
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("articles")
+}
+
+model Setting {
+  id          String  @id @default(uuid())
+  key         String  @unique
+  value       String  @db.Text
+  description String?
+  isPublic    Boolean @default(false)
+  
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+  
+  @@index([key])
+  @@index([isPublic])
+  @@map("settings")
+}
+
+model Media {
+  id          String @id @default(uuid())
+  publicId    String @unique // Cloudinary public_id
+  url         String
+  secureUrl   String
+  format      String
+  resourceType String @default("image") // image, video, raw
+  bytes       Int
+  width       Int?
+  height      Int?
+  
+  // Metadata
+  originalName String?
+  uploadedBy   String?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([publicId])
+  @@index([uploadedBy])
+  @@map("media")
+}
