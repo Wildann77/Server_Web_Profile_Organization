@@ -14,6 +14,8 @@ import { authRoutes } from './features/auth/routes';
 import { articleRoutes } from './features/articles/routes';
 import { uploadRoutes } from './features/upload/routes';
 import { adminRoutes } from './features/admin/routes';
+import { settingRoutes } from './features/settings/routes';
+import { userRoutes } from './features/users/routes';
 
 export const createServer = (): Application => {
   const app = express();
@@ -51,8 +53,8 @@ export const createServer = (): Application => {
 
   // Health check
   app.get('/health', (req, res) => {
-    res.json({ 
-      status: 'ok', 
+    res.json({
+      status: 'ok',
       timestamp: new Date().toISOString(),
       version: '1.0.0',
     });
@@ -63,6 +65,8 @@ export const createServer = (): Application => {
   app.use('/api/v1/articles', articleRoutes);
   app.use('/api/v1/upload', uploadRoutes);
   app.use('/api/v1/admin', adminRoutes);
+  app.use('/api/v1/settings', settingRoutes);
+  app.use('/api/v1/users', userRoutes);
 
   // 404 handler
   app.use((req, res) => {

@@ -87,6 +87,12 @@ async function main() {
       isPublic: true,
     },
     {
+      key: 'site_logo',
+      value: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Logo_Muhammadiyah.svg/1200px-Logo_Muhammadiyah.svg.png',
+      description: 'URL logo website',
+      isPublic: true,
+    },
+    {
       key: 'site_description',
       value: 'Website resmi organisasi kami',
       description: 'Deskripsi website',
@@ -98,15 +104,132 @@ async function main() {
       description: 'Email kontak',
       isPublic: true,
     },
+    {
+      key: 'contact_phone',
+      value: '',
+      description: 'Nomor telepon',
+      isPublic: true,
+    },
+    {
+      key: 'contact_address',
+      value: '',
+      description: 'Alamat kantor',
+      isPublic: true,
+    },
+    {
+      key: 'social_facebook',
+      value: '',
+      description: 'URL Facebook',
+      isPublic: true,
+    },
+    {
+      key: 'social_instagram',
+      value: '',
+      description: 'URL Instagram',
+      isPublic: true,
+    },
+    {
+      key: 'social_youtube',
+      value: '',
+      description: 'URL YouTube',
+      isPublic: true,
+    },
+    // Kontak tambahan
+    {
+      key: 'contact_whatsapp',
+      value: '',
+      description: 'Nomor WhatsApp',
+      isPublic: true,
+    },
+    {
+      key: 'contact_maps_url',
+      value: '',
+      description: 'URL embed Google Maps',
+      isPublic: true,
+    },
+    // Jam operasional
+    {
+      key: 'office_hours_weekday',
+      value: '08.00 - 16.00',
+      description: 'Jam operasional Senin-Jumat',
+      isPublic: true,
+    },
+    {
+      key: 'office_hours_saturday',
+      value: '08.00 - 12.00',
+      description: 'Jam operasional Sabtu',
+      isPublic: true,
+    },
+    // Visi & Misi
+    {
+      key: 'org_vision',
+      value: 'Terwujudnya masyarakat Islam yang sebenar-benarnya yang diridhai Allah SWT.',
+      description: 'Visi organisasi',
+      isPublic: true,
+    },
+    {
+      key: 'org_mission_1',
+      value: 'Menegakkan keyakinan tauhid yang murni sesuai dengan ajaran Allah SWT yang dibawa oleh para Rasul.',
+      description: 'Misi organisasi ke-1',
+      isPublic: true,
+    },
+    {
+      key: 'org_mission_2',
+      value: 'Menyebarluaskan ajaran Islam yang bersumber pada Al-Qur\'an dan As-Sunnah.',
+      description: 'Misi organisasi ke-2',
+      isPublic: true,
+    },
+    {
+      key: 'org_mission_3',
+      value: 'Mewujudkan amal usaha dan amal shalih dalam kehidupan perseorangan, keluarga, dan masyarakat.',
+      description: 'Misi organisasi ke-3',
+      isPublic: true,
+    },
+    // Sejarah
+    {
+      key: 'history_founding',
+      value: 'Muhammadiyah didirikan di Kampung Kauman Yogyakarta pada tanggal 8 Dzulhijjah 1330 H bertepatan dengan tanggal 18 November 1912 M oleh K.H. Ahmad Dahlan.\n\nDi wilayah ini, pergerakan Muhammadiyah dimulai sejak awal abad ke-20 yang dipelopori oleh beberapa tokoh masyarakat setempat. Dengan semangat pembaharuan dan dakwah Islam, organisasi ini terus tumbuh dan memberikan kontribusi nyata bagi umat.',
+      description: 'Narasi sejarah awal berdiri',
+      isPublic: true,
+    },
+    {
+      key: 'history_development',
+      value: 'Seiring berjalannya waktu, berbagai amal usaha mulai didirikan. Mulai dari lembaga pendidikan, kesehatan, hingga sosial yang kini menjadi pusat kegiatan masyarakat.\n\nPeriode kepemimpinan berganti, namun semangat untuk berkhidmat kepada umat tidak pernah pudar. Setiap periode kepengurusan membawa warna dan kemajuan tersendiri bagi perkembangan organisasi.',
+      description: 'Narasi masa pengembangan',
+      isPublic: true,
+    },
+    {
+      key: 'history_present',
+      value: 'Saat ini, Muhammadiyah di wilayah terus beradaptasi dengan tantangan zaman. Digitalisasi dakwah, pemberdayaan ekonomi umat, dan peningkatan kualitas pendidikan menjadi fokus utama pergerakan.',
+      description: 'Narasi masa kini',
+      isPublic: true,
+    },
+    // Hero
+    {
+      key: 'hero_image_url',
+      value: '/hero-cover.png',
+      description: 'URL gambar hero halaman utama (Cloudinary atau path lokal)',
+      isPublic: true,
+    },
+    {
+      key: 'hero_subtitle',
+      value: 'Bersama membangun masyarakat Islam yang sebenar-benarnya — melalui dakwah, pendidikan, dan amal sosial.',
+      description: 'Subtitle hero halaman utama',
+      isPublic: true,
+    },
   ];
+
 
   for (const setting of defaultSettings) {
     await prisma.setting.upsert({
       where: { key: setting.key },
-      update: {},
+      update: {
+        description: setting.description,
+        isPublic: setting.isPublic,
+      },
       create: setting,
     });
-    console.log('✅ Created setting:', setting.key);
+    console.log('✅ Synced setting:', setting.key);
   }
 
   console.log('✅ Seeding completed!');

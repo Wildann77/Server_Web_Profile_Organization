@@ -57,6 +57,7 @@ src/
 │   │   ├── middlewares/      # Feature-specific middleware
 │   │   └── types/            # TypeScript types
 │   ├── articles/
+│   ├── settings/             # Site settings (dynamic config)
 │   ├── upload/
 │   └── admin/
 └── shared/                   # Shared utilities
@@ -260,3 +261,46 @@ Protected routes use middleware:
 - `optionalAuth` - Sets `req.user` if token present, no error if absent
 
 User roles: `ADMIN`, `EDITOR`, `VIEWER` (from Prisma enum)
+
+## Settings Feature
+
+The `settings` feature manages dynamic site configuration stored in the `Setting` table.
+
+### Endpoints
+- `GET /api/v1/settings/public` — Public settings (`isPublic: true`), no auth required.
+- `GET /api/v1/settings` — All settings, ADMIN only.
+- `PATCH /api/v1/settings` — Bulk update `{ settings: { key: value } }`, ADMIN only.
+- `PATCH /api/v1/settings/:key` — Update single setting `{ value }`, ADMIN only.
+
+### Adding a New Setting Key
+1. Add the key to `prisma/seed.ts` in the `defaultSettings` array with `isPublic: true/false`.
+2. Add the corresponding field to `SETTING_GROUPS` in `client/src/pages/admin/AdminSettingsPage.tsx`.
+3. Consume it in the frontend with `useSetting('your_key')`.
+
+### Reserved Keys
+| Key | Description | Public |
+|-----|-------------|--------|
+| `site_name` | Website name shown in Header & Footer | ✅ |
+| `site_description` | Short description shown in Footer | ✅ |
+| `contact_email` | Contact email | ✅ |
+| `contact_phone` | Contact phone | ✅ |
+| `contact_address` | Office address | ✅ |
+| `social_facebook` | Facebook URL | ✅ |
+| `social_instagram` | Instagram URL | ✅ |
+| `social_youtube` | YouTube URL | ✅ |
+
+## Users Feature
+
+The `users` feature handles management of administrative users (ADMIN, EDITOR).
+
+### Endpoints (ADMIN only)
+- `GET /api/v1/users` — List all users (supports `role`, `isActive`, `search` filters).
+- `POST /api/v1/users` — Create a new user.
+- `PATCH /api/v1/users/:id` — Update user details or role.
+- `PATCH /api/v1/users/:id/status` — Toggle user `isActive` status.
+- `DELETE /api/v1/users/:id` — Delete a user (cannot delete self).
+
+### Authentication & Authorization
+- Password hashing is handled in `UserService` using `bcryptjs`.
+- All routes are protected by `authenticate` and `authorize(UserRole.ADMIN)`.
+- Editors cannot manage users.

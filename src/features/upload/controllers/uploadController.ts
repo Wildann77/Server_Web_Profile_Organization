@@ -54,11 +54,36 @@ export class UploadController {
     }
   }
 
+  // Upload setting image (hero, etc)
+  async uploadSettingImage(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.file) {
+        throw new AppError(
+          'Tidak ada file yang diupload',
+          400,
+          ErrorCode.VALIDATION_ERROR
+        );
+      }
+
+      const result = await cloudinaryService.uploadImage(
+        req.file.buffer,
+        'web-profil-organisasi/settings',
+        req.file.originalname
+      );
+
+      res.json(
+        createSuccessResponse(result, 'Gambar pengaturan berhasil diupload')
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
   // Delete image
   async deleteImage(req: Request, res: Response, next: NextFunction) {
     try {
       const { publicId } = req.params;
-      
+
       await cloudinaryService.deleteImage(publicId);
 
       res.json(

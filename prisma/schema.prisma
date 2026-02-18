@@ -7,52 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==================== ENUMS ====================
-
-enum UserRole {
-  ADMIN      // Full access
-  EDITOR     // Create, edit, publish articles
-  VIEWER     // Read-only access
-}
-
-enum ArticleStatus {
-  DRAFT      // Sedang ditulis
-  PUBLISHED  // Sudah dipublikasikan
-  ARCHIVED   // Diarsipkan
-}
-
-enum ArticleVisibility {
-  PUBLIC        // Semua orang bisa lihat
-  PRIVATE       // Hanya admin
-  MEMBERS_ONLY  // Hanya member yang login
-}
-
-enum SessionStatus {
-  ACTIVE
-  REVOKED
-  EXPIRED
-}
-
-// ==================== MODELS ====================
-
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String   // bcrypt hashed
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
   name      String
-  role      UserRole @default(EDITOR)
+  role      UserRole  @default(EDITOR)
   avatarUrl String?
-  isActive  Boolean  @default(true)
-  
-  // Relations
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   articles  Article[]
   sessions  Session[]
-  
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Indexes
+
   @@index([email])
   @@index([role])
   @@index([isActive])
@@ -63,14 +30,13 @@ model Session {
   id        String        @id @default(uuid())
   token     String        @unique
   userId    String
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   status    SessionStatus @default(ACTIVE)
   expiresAt DateTime
   ipAddress String?
   userAgent String?
-  
-  createdAt DateTime @default(now())
-  
+  createdAt DateTime      @default(now())
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([token])
   @@index([status, expiresAt])
@@ -81,31 +47,20 @@ model Article {
   id              String            @id @default(uuid())
   title           String            @db.VarChar(200)
   slug            String            @unique @db.VarChar(200)
-  content         String            @db.Text
+  content         String
   excerpt         String?           @db.VarChar(500)
   thumbnailUrl    String?
-  
-  // Publishing
   status          ArticleStatus     @default(DRAFT)
   visibility      ArticleVisibility @default(PUBLIC)
   publishedAt     DateTime?
-  
-  // SEO
   metaTitle       String?           @db.VarChar(70)
   metaDescription String?           @db.VarChar(160)
-  
-  // Relations
   authorId        String
-  author          User              @relation(fields: [authorId], references: [id])
-  
-  // Analytics
   viewCount       Int               @default(0)
-  
-  // Timestamps
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  
-  // Indexes untuk query optimization
+  author          User              @relation(fields: [authorId], references: [id])
+
   @@index([slug])
   @@index([status, visibility])
   @@index([status, publishedAt])
@@ -115,38 +70,58 @@ model Article {
 }
 
 model Setting {
-  id          String  @id @default(uuid())
-  key         String  @unique
-  value       String  @db.Text
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
   description String?
-  isPublic    Boolean @default(false)
-  
+  isPublic    Boolean  @default(false)
   updatedAt   DateTime @updatedAt
   updatedBy   String?
-  
+
   @@index([key])
   @@index([isPublic])
   @@map("settings")
 }
 
 model Media {
-  id          String @id @default(uuid())
-  publicId    String @unique // Cloudinary public_id
-  url         String
-  secureUrl   String
-  format      String
-  resourceType String @default("image") // image, video, raw
-  bytes       Int
-  width       Int?
-  height      Int?
-  
-  // Metadata
+  id           String   @id @default(uuid())
+  publicId     String   @unique
+  url          String
+  secureUrl    String
+  format       String
+  resourceType String   @default("image")
+  bytes        Int
+  width        Int?
+  height       Int?
   originalName String?
   uploadedBy   String?
-  
-  createdAt DateTime @default(now())
-  
+  createdAt    DateTime @default(now())
+
   @@index([publicId])
   @@index([uploadedBy])
   @@map("media")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ArticleVisibility {
+  PUBLIC
+  PRIVATE
+  MEMBERS_ONLY
+}
+
+enum SessionStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
 }
