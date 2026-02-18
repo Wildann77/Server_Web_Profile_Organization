@@ -25,6 +25,15 @@ router.post(
   uploadController.uploadThumbnail.bind(uploadController)
 );
 
+router.post(
+  '/settings',
+  authenticate,
+  authorize(UserRole.ADMIN),
+  upload.single('image'),
+  handleUploadError,
+  uploadController.uploadSettingImage.bind(uploadController)
+);
+
 router.delete(
   '/image/:publicId',
   authenticate,
