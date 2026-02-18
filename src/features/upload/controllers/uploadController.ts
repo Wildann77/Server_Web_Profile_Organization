@@ -84,7 +84,7 @@ export class UploadController {
     try {
       const { publicId } = req.params;
 
-      await cloudinaryService.deleteImage(publicId);
+      await cloudinaryService.deleteImage(publicId as string);
 
       res.json(
         createSuccessResponse(null, 'Gambar berhasil dihapus')

@@ -7,12 +7,13 @@ import {
   slugParamSchema,
 } from '../schemas/articleSchema';
 import { createSuccessResponse } from '@/shared/lib/response';
+import { ArticleFilters } from '../types';
 
 export class ArticleController {
   // Get all articles (public)
   async getPublicArticles(req: Request, res: Response, next: NextFunction) {
     try {
-      const filters = articleQuerySchema.parse(req.query);
+      const filters = articleQuerySchema.parse(req.query) as ArticleFilters;
       const result = await articleService.getArticles(filters, false);
 
       res.json(
@@ -26,7 +27,7 @@ export class ArticleController {
   // Get all articles (admin)
   async getAdminArticles(req: Request, res: Response, next: NextFunction) {
     try {
-      const filters = articleQuerySchema.parse(req.query);
+      const filters = articleQuerySchema.parse(req.query) as ArticleFilters;
       const result = await articleService.getArticles(filters, true);
 
       res.json(

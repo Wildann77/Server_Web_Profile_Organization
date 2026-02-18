@@ -174,7 +174,7 @@ export class ArticleService {
         visibility: data.visibility,
         metaTitle: data.metaTitle || null,
         metaDescription: data.metaDescription || null,
-        publishedAt: (data.publishedAt && data.publishedAt.trim() !== '') ? new Date(data.publishedAt) : null,
+        publishedAt: (data.publishedAt && (data.publishedAt as any).trim() !== '') ? new Date(data.publishedAt as any) : null,
         authorId,
       },
       include: {
@@ -225,7 +225,7 @@ export class ArticleService {
         visibility: data.visibility,
         metaTitle: data.metaTitle,
         metaDescription: data.metaDescription,
-        publishedAt: (data.publishedAt && data.publishedAt.trim() !== '') ? new Date(data.publishedAt) : (data.publishedAt === '' ? null : undefined),
+        publishedAt: (data.publishedAt && (data.publishedAt as any).trim() !== '') ? new Date(data.publishedAt as any) : (data.publishedAt === '' ? null : undefined),
       },
       include: {
         author: {

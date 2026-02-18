@@ -68,7 +68,7 @@ export class UserService {
             throw new AppError('Email sudah terdaftar', 400, ErrorCode.VALIDATION_ERROR);
         }
 
-        const hashedPassword = await bcrypt.hash(data.password, 10);
+        const hashedPassword = await bcrypt.hash(data.password as string, 10);
 
         return prisma.user.create({
             data: {
@@ -102,7 +102,7 @@ export class UserService {
 
         const updateData: any = { ...data };
         if (data.password) {
-            updateData.password = await bcrypt.hash(data.password, 10);
+            updateData.password = await bcrypt.hash(data.password as string, 10);
         }
 
         return prisma.user.update({
