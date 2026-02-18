@@ -1,0 +1,15 @@
+import { createServer } from '../src/app';
+import { prisma } from '../src/shared/lib/prisma';
+
+const app = createServer();
+
+// Initialize database connection
+prisma.$connect()
+    .then(() => {
+        console.log('✅ Database connected (Vercel)');
+    })
+    .catch((err: unknown) => {
+        console.error('❌ Database connection error (Vercel):', err);
+    });
+
+export default app;
