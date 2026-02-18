@@ -16,7 +16,7 @@ export class ArticleController {
       const result = await articleService.getArticles(filters, false);
 
       res.json(
-        createSuccessResponse(result.articles, 'Artikel berhasil diambil', result.meta)
+        createSuccessResponse(result, 'Artikel berhasil diambil')
       );
     } catch (error) {
       next(error);
@@ -30,7 +30,7 @@ export class ArticleController {
       const result = await articleService.getArticles(filters, true);
 
       res.json(
-        createSuccessResponse(result.articles, 'Artikel berhasil diambil', result.meta)
+        createSuccessResponse(result, 'Artikel berhasil diambil')
       );
     } catch (error) {
       next(error);

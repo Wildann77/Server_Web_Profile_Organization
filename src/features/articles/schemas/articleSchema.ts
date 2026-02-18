@@ -16,7 +16,12 @@ export const createArticleSchema = z.object({
   visibility: z.nativeEnum(ArticleVisibility).default(ArticleVisibility.PUBLIC),
   metaTitle: z.string().max(70, 'Meta title maksimal 70 karakter').optional().or(z.literal('')),
   metaDescription: z.string().max(160, 'Meta description maksimal 160 karakter').optional().or(z.literal('')),
-  publishedAt: z.string().datetime().optional().or(z.literal('')),
+  publishedAt: z.preprocess((arg) => {
+    if (typeof arg === 'string' && arg.length > 0) {
+      return new Date(arg).toISOString();
+    }
+    return arg;
+  }, z.string().datetime().optional().or(z.literal(''))),
 });
 
 export const updateArticleSchema = createArticleSchema.partial();

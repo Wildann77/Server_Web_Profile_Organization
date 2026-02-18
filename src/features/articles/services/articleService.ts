@@ -18,28 +18,42 @@ export class ArticleService {
     // Build where clause
     const where: any = {};
 
+    const andFilters: any[] = [];
+
     // For public access, only show published and public articles
     if (!isAdmin) {
-      where.status = ArticleStatus.PUBLISHED;
-      where.visibility = ArticleVisibility.PUBLIC;
-      where.publishedAt = { lte: new Date() };
+      andFilters.push({ status: ArticleStatus.PUBLISHED });
+      andFilters.push({ visibility: ArticleVisibility.PUBLIC });
+      // Show articles published now or in the past, or those without explicit publishedAt date
+      andFilters.push({
+        OR: [
+          { publishedAt: { lte: new Date() } },
+          { publishedAt: null },
+        ],
+      });
     } else {
       // Admin can filter by status and visibility
-      if (status) where.status = status;
-      if (visibility) where.visibility = visibility;
+      if (status) andFilters.push({ status });
+      if (visibility) andFilters.push({ visibility });
     }
 
     // Search by title or content
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { content: { contains: search, mode: 'insensitive' } },
-      ];
+      andFilters.push({
+        OR: [
+          { title: { contains: search, mode: 'insensitive' } },
+          { content: { contains: search, mode: 'insensitive' } },
+        ],
+      });
     }
 
     // Filter by author
     if (authorId) {
-      where.authorId = authorId;
+      andFilters.push({ authorId });
+    }
+
+    if (andFilters.length > 0) {
+      where.AND = andFilters;
     }
 
     // Get total count
@@ -50,7 +64,10 @@ export class ArticleService {
       where,
       skip,
       take: limit,
-      orderBy: { publishedAt: 'desc' },
+      orderBy: [
+        { publishedAt: 'desc' },
+        { createdAt: 'desc' },
+      ],
       include: {
         author: {
           select: {
@@ -62,7 +79,7 @@ export class ArticleService {
     });
 
     return {
-      articles: articles.map(this.mapToListItem),
+      articles: articles.map(this.mapToListItem.bind(this)),
       meta: {
         page,
         limit,
@@ -157,7 +174,7 @@ export class ArticleService {
         visibility: data.visibility,
         metaTitle: data.metaTitle || null,
         metaDescription: data.metaDescription || null,
-        publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
+        publishedAt: (data.publishedAt && data.publishedAt.trim() !== '') ? new Date(data.publishedAt) : null,
         authorId,
       },
       include: {
@@ -208,7 +225,7 @@ export class ArticleService {
         visibility: data.visibility,
         metaTitle: data.metaTitle,
         metaDescription: data.metaDescription,
-        publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
+        publishedAt: (data.publishedAt && data.publishedAt.trim() !== '') ? new Date(data.publishedAt) : (data.publishedAt === '' ? null : undefined),
       },
       include: {
         author: {
