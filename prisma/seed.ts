@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { PrismaClient, UserRole, ArticleStatus, ArticleVisibility } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
@@ -6,13 +7,18 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding database...');
 
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@organisasi.com';
+  const adminRawPassword = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+  const editorEmail = process.env.SEED_EDITOR_EMAIL || 'editor@organisasi.com';
+  const editorRawPassword = process.env.SEED_EDITOR_PASSWORD || 'editor123';
+
   // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10);
+  const adminPassword = await bcrypt.hash(adminRawPassword, 10);
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@organisasi.com' },
+    where: { email: adminEmail },
     update: {},
     create: {
-      email: 'admin@organisasi.com',
+      email: adminEmail,
       password: adminPassword,
       name: 'Administrator',
       role: UserRole.ADMIN,
@@ -22,12 +28,12 @@ async function main() {
   console.log('✅ Created admin user:', admin.email);
 
   // Create editor user
-  const editorPassword = await bcrypt.hash('editor123', 10);
+  const editorPassword = await bcrypt.hash(editorRawPassword, 10);
   const editor = await prisma.user.upsert({
-    where: { email: 'editor@organisasi.com' },
+    where: { email: editorEmail },
     update: {},
     create: {
-      email: 'editor@organisasi.com',
+      email: editorEmail,
       password: editorPassword,
       name: 'Editor',
       role: UserRole.EDITOR,
