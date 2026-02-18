@@ -15,13 +15,13 @@ export interface RefreshTokenPayload extends TokenPayload {
 }
 
 export const generateAccessToken = (payload: TokenPayload): string => {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(payload, JWT_SECRET as jwt.Secret, { expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] });
 };
 
 export const generateRefreshToken = (payload: TokenPayload): string => {
   return jwt.sign(
     { ...payload, type: 'refresh' },
-    JWT_SECRET,
+    JWT_SECRET as jwt.Secret,
     { expiresIn: '7d' }
   );
 };
