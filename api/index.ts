@@ -1,26 +1,16 @@
-import 'module-alias/register';
-import * as tsConfigPaths from 'tsconfig-paths';
-import * as path from 'path';
+import path from 'path';
+import moduleAlias from 'module-alias';
 
-const tsConfig = require('../tsconfig.json');
-
-tsConfigPaths.register({
-    baseUrl: path.resolve(__dirname, '..'),
-    paths: tsConfig.compilerOptions.paths,
-});
+// Set up aliases for Vercel runtime
+// __dirname is /var/task/api
+moduleAlias.addAlias('@', path.join(__dirname, '..', 'src'));
 
 import { createServer } from '../src/app';
-import { prisma } from '../src/shared/lib/prisma';
 
 const app = createServer();
 
-// Initialize database connection
-prisma.$connect()
-    .then(() => {
-        console.log('✅ Database connected (Vercel)');
-    })
-    .catch((err: unknown) => {
-        console.error('❌ Database connection error (Vercel):', err);
-    });
+// For Vercel, we export the app instance.
+// Note: We don't call prisma.$connect() here because it might block
+// the initial function cold start. Prisma will automatically connect on the first query.
 
 export default app;
