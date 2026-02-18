@@ -34,6 +34,8 @@ export class CloudinaryService {
             use_filename: true,
             unique_filename: true,
             overwrite: false,
+            quality: 'auto',
+            fetch_format: 'auto',
           },
           (error, result) => {
             if (error) {
@@ -81,24 +83,21 @@ export class CloudinaryService {
   }
 
   // Get optimized image URL
-  getOptimizedUrl(publicId: string, options: {
-    width?: number;
-    height?: number;
-    crop?: string;
-    quality?: number;
-  } = {}): string {
-    const { width, height, crop = 'fill', quality = 80 } = options;
-    
-    const transformations: string[] = [
-      `q_${quality}`,
-    ];
-    
-    if (width) transformations.push(`w_${width}`);
-    if (height) transformations.push(`h_${height}`);
-    if (crop) transformations.push(`c_${crop}`);
-    
+  getOptimizedUrl(
+    publicId: string,
+    options: {
+      width?: number;
+      height?: number;
+      crop?: string;
+    } = {}
+  ): string {
+    const { width, height, crop = 'fill' } = options;
+
     return cloudinary.url(publicId, {
-      transformation: transformations,
+      transformation: [
+        { quality: 'auto', fetch_format: 'auto' },
+        ...(width || height ? [{ width, height, crop }] : []),
+      ],
       secure: true,
     });
   }
