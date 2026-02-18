@@ -66,7 +66,7 @@ export class ArticleController {
   async getArticleById(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const article = await articleService.getArticleById(id);
+      const article = await articleService.getArticleById(id as string);
 
       res.json(createSuccessResponse(article, 'Artikel berhasil diambil'));
     } catch (error) {
@@ -100,7 +100,7 @@ export class ArticleController {
     try {
       const { id } = req.params;
       const data = updateArticleSchema.parse(req.body);
-      const article = await articleService.updateArticle(id, data);
+      const article = await articleService.updateArticle(id as string, data);
 
       res.json(createSuccessResponse(article, 'Artikel berhasil diperbarui'));
     } catch (error) {
@@ -112,7 +112,7 @@ export class ArticleController {
   async deleteArticle(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      await articleService.deleteArticle(id);
+      await articleService.deleteArticle(id as string);
 
       res.json(createSuccessResponse(null, 'Artikel berhasil dihapus'));
     } catch (error) {
