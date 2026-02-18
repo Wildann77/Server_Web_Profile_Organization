@@ -1,3 +1,14 @@
+import 'module-alias/register';
+import * as tsConfigPaths from 'tsconfig-paths';
+import * as path from 'path';
+
+const tsConfig = require('../tsconfig.json');
+
+tsConfigPaths.register({
+    baseUrl: path.resolve(__dirname, '..'),
+    paths: tsConfig.compilerOptions.paths,
+});
+
 import { createServer } from '../src/app';
 import { prisma } from '../src/shared/lib/prisma';
 
