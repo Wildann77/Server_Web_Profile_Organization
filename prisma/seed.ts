@@ -162,8 +162,14 @@ async function main() {
     },
     {
       key: 'office_hours_saturday',
-      value: '08.00 - 12.00',
+      value: 'Libur',
       description: 'Jam operasional Sabtu',
+      isPublic: true,
+    },
+    {
+      key: 'office_hours_sunday',
+      value: 'Tutup',
+      description: 'Jam operasional Minggu',
       isPublic: true,
     },
     // Visi & Misi
